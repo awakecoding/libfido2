@@ -231,8 +231,6 @@ else()
 		add_definitions(-DFIDO_NO_DIAGNOSTIC)
 		add_definitions(-DWC_ERR_INVALID_CHARS=0x80)
 		add_compile_options(-Wno-unused-parameter)
-	else()
-		set(USE_WINHELLO OFF)
 	endif()
 
 	if(USE_HIDAPI)
@@ -248,6 +246,8 @@ else()
 	if(NFC_LINUX)
 		add_definitions(-DNFC_LINUX)
 	endif()
+
+	set(USE_WINHELLO OFF)
 
 	add_compile_options(-Wall)
 	add_compile_options(-Wextra)
