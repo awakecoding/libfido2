@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 
 param(
-	[string]$CMakePath = "C:\Program Files\CMake\bin\cmake.exe",
+	[string]$CMakePath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe",#"C:\Program Files\CMake\bin\cmake.exe",
 	[string]$GitPath = "C:\Program Files\Git\bin\git.exe",
 	[string]$SevenZPath = "C:\Program Files\7-Zip\7z.exe",
 	[string]$GPGPath = "C:\Program Files (x86)\GnuPG\bin\gpg.exe",
@@ -54,14 +54,14 @@ if (-Not (Test-Path $CMake)) {
 }
 
 # Find 7z.
-$SevenZ = $(Get-Command 7z -ErrorAction Ignore | `
+<#$SevenZ = $(Get-Command 7z -ErrorAction Ignore | `
     Select-Object -ExpandProperty Source)
 if ([string]::IsNullOrEmpty($SevenZ)) {
 	$SevenZ = $SevenZPath
 }
 if (-Not (Test-Path $SevenZ)) {
 	throw "Unable to find 7z at $SevenZ"
-}
+}#>
 
 # Find GPG.
 $GPG = $(Get-Command gpg -ErrorAction Ignore | `
