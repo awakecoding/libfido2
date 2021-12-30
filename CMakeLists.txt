@@ -330,7 +330,7 @@ elseif(NOT MSVC)
 	endif()
 else()
 	string(CONCAT CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS}
-	    " /def:\"${CMAKE_CURRENT_SOURCE_DIR}/src/export.msvc\"")
+	    " /DEBUG /DEBUGTYPE:CV,FIXUP /def:\"${CMAKE_CURRENT_SOURCE_DIR}/src/export.msvc\"")
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
