@@ -199,13 +199,11 @@ else()
 
     find_path(ZLIB_INCLUDE_DIR
         NAMES "zlib.h"
-        PATHS ${ZLIB_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS}
-        NO_DEFAULT_PATH)
+        PATHS ${ZLIB_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
 
     find_library(ZLIB_LIBRARY
         NAMES zlib z
-        PATHS ${ZLIB_LIBRARY_DIR} ${ZLIB_LIBRARY_DIRS}
-        NO_DEFAULT_PATH)
+        PATHS ${ZLIB_LIBRARY_DIR} ${ZLIB_LIBRARY_DIRS})
 
     get_filename_component(ZLIB_LIBRARY_DIR ${ZLIB_LIBRARY} DIRECTORY CACHE)
 
@@ -220,7 +218,7 @@ else()
         HINTS ${CBOR_INCLUDE_DIR} ${CBOR_INCLUDE_DIRS})
 
     find_library(CBOR_LIBRARY
-        NAMES cbor
+        NAMES libcbor cbor
         HINTS ${CBOR_LIBRARY_DIR} ${CBOR_LIBRARY_DIRS})
 
     get_filename_component(CBOR_LIBRARY_DIR ${CBOR_LIBRARY} DIRECTORY CACHE)
