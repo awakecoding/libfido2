@@ -194,25 +194,89 @@ if(MSVC)
 	endif()
 	set(NFC_LINUX OFF)
 else()
-	include(FindPkgConfig)
-	pkg_search_module(CBOR libcbor)
-	pkg_search_module(CRYPTO libcrypto)
-	pkg_search_module(ZLIB zlib)
 
-	if(NOT CBOR_FOUND AND NOT HAVE_CBOR_H)
-		message(FATAL_ERROR "could not find libcbor")
-	endif()
-	if(NOT CRYPTO_FOUND AND NOT HAVE_OPENSSLV_H)
-		message(FATAL_ERROR "could not find libcrypto")
-	endif()
-	if(NOT ZLIB_FOUND)
-		message(FATAL_ERROR "could not find zlib")
-	endif()
+    # detect zlib
+
+    find_path(ZLIB_INCLUDE_DIR
+        NAMES "zlib.h"
+        PATHS ${ZLIB_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS}
+        NO_DEFAULT_PATH)
+
+    find_library(ZLIB_LIBRARY
+        NAMES zlib z
+        PATHS ${ZLIB_LIBRARY_DIR} ${ZLIB_LIBRARY_DIRS}
+        NO_DEFAULT_PATH)
+
+    get_filename_component(ZLIB_LIBRARY_DIR ${ZLIB_LIBRARY} DIRECTORY CACHE)
+
+    add_library(zlib STATIC IMPORTED GLOBAL)
+    set_target_properties(zlib PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_INCLUDE_DIR}")
+    set_target_properties(zlib PROPERTIES IMPORTED_LOCATION "${ZLIB_LIBRARY}")
+
+    # detect libcbor
+
+    find_path(CBOR_INCLUDE_DIR
+        NAMES "cbor.h"
+        HINTS ${CBOR_INCLUDE_DIR} ${CBOR_INCLUDE_DIRS})
+
+    find_library(CBOR_LIBRARY
+        NAMES cbor
+        HINTS ${CBOR_LIBRARY_DIR} ${CBOR_LIBRARY_DIRS})
+
+    get_filename_component(CBOR_LIBRARY_DIR ${CBOR_LIBRARY} DIRECTORY CACHE)
+
+    add_library(libcbor STATIC IMPORTED GLOBAL)
+    set_target_properties(libcbor PROPERTIES IMPORTED_LOCATION "${CBOR_LIBRARY}")
+
+    # detect libressl
+
+    find_path(CRYPTO_INCLUDE_DIR
+        NAMES "openssl/opensslv.h"
+        HINTS ${CRYPTO_INCLUDE_DIR} ${CRYPTO_INCLUDE_DIRS})
+
+    find_library(CRYPTO_LIBRARY
+        NAMES libcrypto crypto
+        HINTS ${LIBCRYPTO_LIBRARY_DIR} ${LIBCRYPTO_LIBRARY_DIRS})
+
+    get_filename_component(CRYPTO_LIBRARY_DIR ${CRYPTO_LIBRARY} DIRECTORY CACHE)
+
+    add_library(libcrypto STATIC IMPORTED GLOBAL)
+    set_target_properties(libcrypto PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CRYPTO_INCLUDE_DIR}")
+    set_target_properties(libcrypto PROPERTIES IMPORTED_LOCATION "${CRYPTO_LIBRARY}")
+
+    include(FindPkgConfig)
+
+    include_directories("${ZLIB_INCLUDE_DIR}")
+    include_directories("${CBOR_INCLUDE_DIR}")
+    include_directories("${CRYPTO_INCLUDE_DIR}")
+
+    message(STATUS "ZLIB_INCLUDE_DIR: ${ZLIB_INCLUDE_DIR}")
+    message(STATUS "ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
+    message(STATUS "CBOR_INCLUDE_DIR: ${CBOR_INCLUDE_DIR}")
+    message(STATUS "CBOR_LIBRARY: ${CBOR_LIBRARY}")
+    message(STATUS "CRYPTO_INCLUDE_DIR: ${CRYPTO_INCLUDE_DIR}")
+    message(STATUS "CRYPTO_LIBRARY: ${CRYPTO_LIBRARY}")
+
+    if (NOT (ZLIB_LIBRARY AND CBOR_LIBRARY AND CRYPTO_LIBRARY))
+        pkg_search_module(CBOR libcbor)
+        pkg_search_module(CRYPTO libcrypto)
+        pkg_search_module(ZLIB zlib)
+
+        if(NOT CBOR_FOUND AND NOT HAVE_CBOR_H)
+            message(FATAL_ERROR "could not find libcbor")
+        endif()
+        if(NOT CRYPTO_FOUND AND NOT HAVE_OPENSSLV_H)
+            message(FATAL_ERROR "could not find libcrypto")
+        endif()
+        if(NOT ZLIB_FOUND)
+            message(FATAL_ERROR "could not find zlib")
+        endif()
+    endif()
 
 	set(CBOR_LIBRARIES "cbor")
 	set(CRYPTO_LIBRARIES "crypto")
 
-	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	if((CMAKE_SYSTEM_NAME STREQUAL "Linux") AND NFC_LINUX)
 		pkg_search_module(UDEV libudev REQUIRED)
 		set(UDEV_NAME "udev")
 		# If using hidapi, use hidapi-hidraw.
