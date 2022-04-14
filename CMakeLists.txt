@@ -197,13 +197,15 @@ else()
 
     # detect zlib
 
+    if(ZLIB_ROOT_DIR)
+        list(PREPEND CMAKE_FIND_ROOT_PATH ${ZLIB_ROOT_DIR})
+    endif()
+
     find_path(ZLIB_INCLUDE_DIR
-        NAMES "zlib.h"
-        PATHS ${ZLIB_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
+        NAMES "zlib.h")
 
     find_library(ZLIB_LIBRARY
-        NAMES zlib z
-        PATHS ${ZLIB_LIBRARY_DIR} ${ZLIB_LIBRARY_DIRS})
+        NAMES zlib z)
 
     get_filename_component(ZLIB_LIBRARY_DIR ${ZLIB_LIBRARY} DIRECTORY CACHE)
 
@@ -213,13 +215,15 @@ else()
 
     # detect libcbor
 
+    if(CBOR_ROOT_DIR)
+        list(PREPEND CMAKE_FIND_ROOT_PATH ${CBOR_ROOT_DIR})
+    endif()
+
     find_path(CBOR_INCLUDE_DIR
-        NAMES "cbor.h"
-        HINTS ${CBOR_INCLUDE_DIR} ${CBOR_INCLUDE_DIRS})
+        NAMES "cbor.h")
 
     find_library(CBOR_LIBRARY
-        NAMES libcbor cbor
-        HINTS ${CBOR_LIBRARY_DIR} ${CBOR_LIBRARY_DIRS})
+        NAMES libcbor cbor)
 
     get_filename_component(CBOR_LIBRARY_DIR ${CBOR_LIBRARY} DIRECTORY CACHE)
 
@@ -228,13 +232,15 @@ else()
 
     # detect libressl
 
+    if(CRYPTO_ROOT_DIR)
+        list(PREPEND CMAKE_FIND_ROOT_PATH ${CRYPTO_ROOT_DIR})
+    endif()
+
     find_path(CRYPTO_INCLUDE_DIR
-        NAMES "openssl/opensslv.h"
-        HINTS ${CRYPTO_INCLUDE_DIR} ${CRYPTO_INCLUDE_DIRS})
+        NAMES "openssl/opensslv.h")
 
     find_library(CRYPTO_LIBRARY
-        NAMES libcrypto crypto
-        HINTS ${LIBCRYPTO_LIBRARY_DIR} ${LIBCRYPTO_LIBRARY_DIRS})
+        NAMES libcrypto crypto)
 
     get_filename_component(CRYPTO_LIBRARY_DIR ${CRYPTO_LIBRARY} DIRECTORY CACHE)
 
