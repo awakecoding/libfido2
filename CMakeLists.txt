@@ -70,6 +70,9 @@ if(NOT MSVC)
 	elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		set(FIDO_CFLAGS "${FIDO_CFLAGS} -D_GNU_SOURCE")
 		set(FIDO_CFLAGS "${FIDO_CFLAGS} -D_DEFAULT_SOURCE")
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+		set(FIDO_CFLAGS "${FIDO_CFLAGS} -D_GNU_SOURCE")
+		set(FIDO_CFLAGS "${FIDO_CFLAGS} -D_DEFAULT_SOURCE")
 	elseif(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" OR
 	    CMAKE_SYSTEM_NAME STREQUAL "MidnightBSD")
 		set(FIDO_CFLAGS "${FIDO_CFLAGS} -D__BSD_VISIBLE=1")
@@ -108,6 +111,11 @@ check_symbol_exists(strsep string.h HAVE_STRSEP)
 check_symbol_exists(sysconf unistd.h HAVE_SYSCONF)
 check_symbol_exists(timespecsub sys/time.h HAVE_TIMESPECSUB)
 check_symbol_exists(timingsafe_bcmp string.h HAVE_TIMINGSAFE_BCMP)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    set(HAVE_EXPLICIT_BZERO OFF)
+    add_definitions(-DCRYPTO_EXPLICIT_BZERO)
+endif()
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 try_compile(HAVE_POSIX_IOCTL
@@ -278,10 +286,11 @@ else()
         endif()
     endif()
 
+	set(ZLIB_LIBRARIES "zlib")
 	set(CBOR_LIBRARIES "cbor")
 	set(CRYPTO_LIBRARIES "crypto")
 
-	if((CMAKE_SYSTEM_NAME STREQUAL "Linux") AND NFC_LINUX)
+	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		pkg_search_module(UDEV libudev REQUIRED)
 		set(UDEV_NAME "udev")
 		# If using hidapi, use hidapi-hidraw.
@@ -295,6 +304,27 @@ else()
 				set(BASE_LIBRARIES ${BASE_LIBRARIES} rt)
 			endif()
 		endif()
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+        if(UDEV_ROOT_DIR)
+            list(PREPEND CMAKE_FIND_ROOT_PATH ${UDEV_ROOT_DIR})
+        endif()
+
+        find_path(UDEV_INCLUDE_DIR
+            NAMES "libudev.h")
+
+        find_library(UDEV_LIBRARY
+            NAMES libudev-zero.a libudev)
+
+        add_library(udev STATIC IMPORTED GLOBAL)
+        set_target_properties(udev PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${UDEV_INCLUDE_DIR}")
+        set_target_properties(udev PROPERTIES IMPORTED_LOCATION "${UDEV_LIBRARY}")
+
+        include_directories("${UDEV_INCLUDE_DIR}")
+
+        set(UDEV_LIBRARIES "udev")
+
+        message(STATUS "UDEV_INCLUDE_DIR: ${UDEV_INCLUDE_DIR}")
+        message(STATUS "UDEV_LIBRARY: ${UDEV_LIBRARY}")
 	else()
 		set(NFC_LINUX OFF)
 	endif()
